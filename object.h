@@ -1,5 +1,5 @@
 //
-// Created by ilim on 2018/09/14.
+// Created by ilim0t on 2018/09/14.
 //
 
 #ifndef RENDERER_OBJECT_H
@@ -24,11 +24,11 @@ struct Sphere {
 
         const double t1 = b - std::sqrt(radius * radius - distance2);
         if (dmin < t1 && t1 < dmax) {
-            return Hit{t1, this};
+            return Hit(t1, this);
         }
         const double t2 = b + std::sqrt(radius * radius - distance2);
         if (dmin < t2 && t2 < dmax) {
-            return Hit{t2, this};
+            return Hit(t2, this);
         }
         return {};
     }

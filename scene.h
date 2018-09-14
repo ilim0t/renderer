@@ -1,5 +1,5 @@
 //
-// Created by ilim on 2018/09/14.
+// Created by ilim0t on 2018/09/14.
 //
 
 #ifndef RENDERER_SCENE_H
@@ -24,6 +24,11 @@ struct Scene {
             }
             minhit = hit;
             dmax = minhit->distance;
+        }
+        if (minhit) {
+            const Sphere* o = minhit->object;
+            minhit->point = ray.origin + ray.direction * minhit->distance;
+            minhit->normal = (minhit->point - o->position) / o->radius;
         }
         return minhit;
     }

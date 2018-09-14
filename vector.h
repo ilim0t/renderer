@@ -1,5 +1,5 @@
 //
-// Created by ilim on 2018/09/13.
+// Created by ilim0t on 2018/09/13.
 //
 
 #ifndef RENDERER_VECTOR_H

@@ -1,37 +1,53 @@
 //
-// Created by ilim0t on 2018/09/14.
+// Created by ilim on 2018/10/19.
 //
 
 #ifndef RENDERER_OBJECT_H
 #define RENDERER_OBJECT_H
-#include "ray.h"
-#include "hit.h"
-#include "vector.h"
+
+
 #include <optional>
-#include <cmath>
+#include "vector.h"
+#include "hit.h"
+#include "ray.h"
 
-struct Sphere {
-    Vector position;
+struct BaseObject {
+    virtual std::optional<Hit> intersect(const Ray& ray) const = 0;
+};
+
+struct Sphere : public BaseObject {
+    Vector3 position;
     double radius;
+    Vector3 reflectance;
+    Vector3 illuminance;
 
-    std::optional<Hit> intersect(const Ray& ray, double dmax, double dmin) const {
-        const Vector relative_position =  position - ray.origin;
-        const double b = dot(relative_position, ray.direction);
-        const double distance2 = dot(relative_position, relative_position) - b * b;
-        if (distance2 > radius * radius) {
+    Sphere(Vector3 position, double radius, Vector3 reflectance, Vector3 illuminance) :
+            position(position), radius(radius), reflectance(reflectance), illuminance(illuminance){}
+
+    std::optional<Hit> intersect(const Ray& ray) const {
+            Vector3 position_origin = ray.origin - position;
+
+            double a = ray.direction.length2();
+            double b = 2 * vector3::dot(ray.direction, position_origin);
+            double c = position_origin.length2() - radius*radius;
+
+            double D = b*b - 4*a*c;
+            if(D < 0) {
+                    return {};
+            }
+            double short_point = (-b - std::sqrt(D)) / (2*a);
+            if(short_point > 0) {
+                    Vector3 point(ray.origin + short_point * ray.direction);
+                    return Hit{point, (point - position).unit(), this};
+            }
+            double long_point = (-b + std::sqrt(D)) / (2*a);
+            if(long_point > 0) {
+                    Vector3 point(ray.origin + long_point * ray.direction);
+                    return Hit{point, (point - position).unit(), this};
+            }
             return {};
-        }
-
-        const double t1 = b - std::sqrt(radius * radius - distance2);
-        if (dmin < t1 && t1 < dmax) {
-            return Hit(t1, this);
-        }
-        const double t2 = b + std::sqrt(radius * radius - distance2);
-        if (dmin < t2 && t2 < dmax) {
-            return Hit(t2, this);
-        }
-        return {};
     }
 };
+
 
 #endif //RENDERER_OBJECT_H

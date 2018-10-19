@@ -1,77 +1,77 @@
 //
-// Created by ilim0t on 2018/09/13.
+// Created by ilim on 2018/10/19.
 //
 
 #ifndef RENDERER_VECTOR_H
 #define RENDERER_VECTOR_H
-#include <fstream>
+
+#include <iostream>
 #include <cmath>
 
-struct Vector {
+struct Vector3;
+namespace vector3 {
+    double dot(const Vector3& a, const Vector3& b);
+}
+Vector3 operator/(const Vector3& v, double k);
+
+struct Vector3 {
     double x;
     double y;
     double z;
 
-    Vector(double v = 0) : Vector(v, v, v) {};
-    Vector(double x, double y, double z): x(x), y(y), z(z) {};
+    Vector3(double k=0) : x(k), y(k), z(k) {}
+    Vector3(double x, double y, double z) : x(x), y(y), z(z) {}
 
-    double operator[](int i) const {
-        return (&x)[i];
+    double length2() const {
+        return vector3::dot(*this, *this);
+    }
+
+    double length() const {
+        return std::sqrt(length2());
+    }
+
+    Vector3 unit() const {
+        return *this / length();
     }
 };
 
-Vector operator+(const Vector& a, const Vector& b) {
-    return Vector(a.x + b.x, a.y + b.y, a.z + b.z);
+Vector3 operator+(const Vector3& a, const Vector3& b) {
+    return Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+Vector3 operator-(const Vector3& v) {
+    return Vector3(-v.x, -v.y, -v.z);
+}
+Vector3 operator-(const Vector3& a, const Vector3& b) {
+    return a + (-b);
 }
 
-Vector operator-(const Vector& a, const Vector& b) {
-    return Vector(a.x - b.x, a.y - b.y, a.z - b.z);
+Vector3 operator*(const Vector3& v, double k) {
+    return Vector3(v.x * k, v.y * k, v.z * k);
+}
+Vector3 operator/(const Vector3& v, double k) {
+    return v * (1 / k);
 }
 
-Vector operator*(double k, const Vector& v) {
-    return Vector(k * v.x, k * v.y, k * v.z);
+Vector3 operator*(const Vector3& a, const Vector3& b) {
+    return Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
 }
 
-Vector operator*(const Vector& a, const Vector& b) {
-    return Vector(a.x * b.x, a.y * b.y, a.z * b.z);
+std::ostream& operator<<(std::ostream& os, const Vector3& v) {
+    os << int(v.x) << " " << int(v.y) << " " << int(v.z) << "\n";
+    return os;
 }
 
-Vector operator/(const Vector& a, const Vector& b) {
-    return Vector(a.x / b.x, a.y / b.y, a.z / b.z);
+namespace vector3 {
+    double dot(const Vector3& a, const Vector3& b) {
+        return a.x*b.x + a.y*b.y + a.z*b.z;
+    }
+
+    Vector3 cross(const Vector3& a, const Vector3& b) {
+        return Vector3(
+                a.y*b.z - a.z*b.y,
+                a.z*b.x - a.x*b.z,
+                a.x*b.y - a.y*b.x);
+    }
 }
-
-Vector operator/(double k, const Vector& v) {
-    return Vector(v.x / k, v.y / k, v.z /k);
-}
-
-Vector operator-(const Vector& v) {
-    return Vector(- v.x, - v.y, - v.z);
-}
-
-double dot(const Vector& a, const Vector& b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-Vector cross(const Vector& a, const Vector& b) {
-    return Vector(
-            a.y * b.z - a.z * b.y,
-            a.z * b.x - a.x * b.z,
-            a.x * b.y - a.y * b.z
-    );
-}
-
-Vector normalize(const Vector& v) {
-    return v / std::sqrt(dot(v, v));
-}
-
-
-//void operator<<(std::ofstream& stream, const Vector& v) {
-//    stream << "(" << v.x << ", " << v.y <<  ", " << v.z << ")" << std::endl;
-//}
-
-//std::ofstream& operator<<(std::ofstream& stream, const Vector& v) {
-//    stream << "(" << v.x << ", " << v.y <<  ", " << v.z << ")";
-//    return stream;
-//}
 
 #endif //RENDERER_VECTOR_H

@@ -1,20 +1,18 @@
 //
-// Created by ilim0t on 2018/09/14.
+// Created by ilim on 2018/10/19.
 //
 
 #ifndef RENDERER_HIT_H
 #define RENDERER_HIT_H
-//#include "object.h"
+
 #include "vector.h"
-struct  Sphere;
+//#include "object.h"
+struct BaseObject;
 
 struct Hit {
-    double distance;
-    Vector point;
-    Vector normal;
-    const Sphere* object;
-
-    Hit(double distance, const Sphere* object) : distance(distance), object(object) {}
+    Vector3 point;
+    Vector3 normal;
+    const BaseObject *hit_object_ptr;
 };
 
 #endif //RENDERER_HIT_H

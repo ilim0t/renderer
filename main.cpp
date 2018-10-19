@@ -1,38 +1,34 @@
 //
-// Created by ilim on 2018/09/13.
+// Created by ilim on 2018/10/19.
 //
 
 #include <iostream>
-#include <fstream>
-#include <vector>
-#include <optional>
-#include <cmath>
-
 #include "vector.h"
-#include "ray.h"
-#include "hit.h"
-#include "scene.h"
 #include "image.h"
-
+#include "object.h"
+#include "ray.h"
 
 int main() {
-    Scene scene;
-    const int width = std::pow(2, 8);
-    const int height = std::pow(2, 8);
-    Image image(width, height);
+    Image img(256, 256);
+    Sphere sphere(Vector3(), 1., Vector3(), Vector3());
 
-    for (int i=0; i < width*height; ++i){
-        const int x = i % width;
-        const int y = i / width;
-
-        Ray ray(Vector(2.*((double)x/width)-1, 2.*((double)y/width)-1, 5),  Vector(0, 0, -1));
-        const auto hit = scene.intersect(ray, 0, 1e+10);
-        if (hit) {
-            image.setPixel(x, y, hit->normal);
-        } else {
-            image.setPixel(x, y, Vector(0, 0, 0));
+    #pragma omp parallel for schedule(dynamic, 1)
+    for(int x=0; x<img.width; ++x) {
+        for(int y=0; y<img.height; ++y) {
+            Vector3 L;
+            Ray ray;
+            ray.origin = Vector3(2.*x/img.width-1, 2.*y/img.height-1, -4);
+            ray.direction = Vector3(0, 0, 1);
+            ray.depth = 0;
+            auto hit = sphere.intersect(ray);
+            if(hit) {
+                L = Vector3(1);
+            } else {
+                L = Vector3(0.5, 0.7, 0.9);
+            }
+            img.set_pixel(x, y, L);
         }
     }
-    image.ppmOutput();
+    img.output_ppm("./result.ppm");
     return 0;
 }

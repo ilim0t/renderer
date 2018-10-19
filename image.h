@@ -1,49 +1,65 @@
 //
-// Created by ilim0t on 2018/09/14.
+// Created by ilim on 2018/10/19.
 //
 
 #ifndef RENDERER_IMAGE_H
 #define RENDERER_IMAGE_H
-#include "vector.h"
-#include <fstream>
-#include <algorithm>
 
-int tonemap(double x) {
-    return std::pow(std::clamp(x, 0., 1.), 1/2.2) * 255;
+#include <fstream>
+#include <cmath>
+#include <algorithm>
+#include "vector.h"
+
+struct Image;
+namespace image {
+    void output_ppm(std::string file_name, const Image &image);
 }
 
 struct Image {
     int width;
     int height;
-    Vector* data;
+    int size;
+    Vector3 *data;
 
-    Image(int width, int height) : width(width), height(height), data(new Vector[width* height]) {}
-
+    Image(int width, int height) : width(width), height(height), size(width*height) {
+        data = new Vector3[size];
+    }
     ~Image() {
         delete[] data;
     }
 
-    void setPixel(int i, int j, const Vector& color) {
-        data[width * i + j] = color;
+    void set_pixel(int x, int y, const Vector3 v) {
+        data[coord2index(x, y)] = v;
+    }
+    Vector3 get_pixel(int x, int y) const {
+        return data[coord2index(x, y)];
     }
 
-    Vector getPixel(int i, int j) const {
-        return data[width * i + j];
+    void output_ppm(std::string file_name) const {
+        image::output_ppm(file_name, *this);
     }
 
-    void ppmOutput() const {
-        std::ofstream ofs("../result.ppm");
-        ofs << "P3\n" << width <<  " " << height << "\n255\n";
-        for (int i=0; i < height; ++i) {
-            for (int j=0; j < width; ++j) {
-                Vector color = this->getPixel(j, i);
-                ofs << tonemap(color.x) <<
-                " " << tonemap(color.y) <<
-                " " << tonemap(color.z) << std::endl;
-            }
+private:
+    int coord2index(int x, int y) const {
+        return x + y*height;
+    }
+};
+
+namespace image {
+    double tonemap(double k) {
+        return std::pow(std::clamp(k, 0., 1.), 1./2.2) * 255;
+    }
+    Vector3 tonemap(const Vector3& v) {
+        return Vector3(tonemap(v.x), tonemap(v.y), tonemap(v.z));
+    }
+
+    void output_ppm(std::string file_name, const Image& image) {
+        std::ofstream ofs(file_name);
+        ofs << "P3\n" << image.width << " " << image.height << "\n255\n";
+        for(int i=0; i<image.size; ++i) {
+            ofs << tonemap(image.data[i]);
         }
     }
-
-};
+}
 
 #endif //RENDERER_IMAGE_H

@@ -38,12 +38,12 @@ struct Sphere : public BaseObject {
             double short_point = (-b - std::sqrt(D)) / (2*a);
             if(short_point > 0) {
                     Vector3 point(ray.origin + short_point * ray.direction);
-                    return Hit{point, (point - position).unit(), this};
+                    return Hit{point, (point - position).unit(), (point-ray.origin).length(), this};
             }
             double long_point = (-b + std::sqrt(D)) / (2*a);
             if(long_point > 0) {
                     Vector3 point(ray.origin + long_point * ray.direction);
-                    return Hit{point, (point - position).unit(), this};
+                    return Hit{point, (point - position).unit(), (point-ray.origin).length(), this};
             }
             return {};
     }

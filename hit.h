@@ -7,13 +7,13 @@
 
 #include "vector.h"
 //#include "object.h"
-struct BaseObject;
+struct ShapeBase;
 
 struct Hit {
     Vector3 point;
     Vector3 normal;
     double distance;
-    const BaseObject *hit_object_ptr;
+    const ShapeBase *hit_shape_ptr;
 };
 
 #endif //RENDERER_HIT_H

@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <tuple>
 
 struct Vector3;
 namespace vector3 {
@@ -32,6 +33,10 @@ struct Vector3 {
 
     Vector3 unit() const {
         return *this / length();
+    }
+
+    Vector3 abs() const {
+        return Vector3(std::abs(x), std::abs(y), std::abs(z));
     }
 };
 
@@ -71,6 +76,13 @@ namespace vector3 {
                 a.y*b.z - a.z*b.y,
                 a.z*b.x - a.x*b.z,
                 a.x*b.y - a.y*b.x);
+    }
+
+    std::tuple<Vector3, Vector3> tangent_space(const Vector3& normal) {
+        Vector3 near = std::abs(normal.x) > 0.9 ? Vector3(normal.x, 1, 0) : Vector3(normal.x, 0, 0);
+        Vector3 u = cross(normal, near).unit();
+        Vector3 v = cross(u, normal).unit();
+        return {u, v};
     }
 }
 

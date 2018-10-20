@@ -11,14 +11,14 @@
 #include "ray.h"
 
 struct Scene {
-    std::vector<BaseObject*> objects;
+    std::vector<ShapeBase*> objects;
 
-    Scene(const std::vector<BaseObject*>& objects): objects(objects) {}
+    Scene(const std::vector<ShapeBase*>& objects): objects(objects) {}
 
     std::optional<Hit> intersect(const Ray& ray) const {
         std::optional<Hit> hit, min_hit;
         double min_distance;
-        for(const BaseObject *object : objects) {
+        for(const ShapeBase *object : objects) {
             std::optional<Hit> hit = object->intersect(ray);
             if(!hit) {
                 continue;

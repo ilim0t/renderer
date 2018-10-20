@@ -2,8 +2,8 @@
 // Created by ilim on 2018/10/19.
 //
 
-#ifndef RENDERER_OBJECT_H
-#define RENDERER_OBJECT_H
+#ifndef RENDERER_SHAPE_H
+#define RENDERER_SHAPE_H
 
 
 #include <optional>
@@ -11,11 +11,11 @@
 #include "hit.h"
 #include "ray.h"
 
-struct BaseObject {
+struct ShapeBase {
     virtual std::optional<Hit> intersect(const Ray& ray) const = 0;
 };
 
-struct Sphere : public BaseObject {
+struct Sphere : public ShapeBase {
     Vector3 position;
     double radius;
     Vector3 reflectance;
@@ -49,5 +49,4 @@ struct Sphere : public BaseObject {
     }
 };
 
-
-#endif //RENDERER_OBJECT_H
+#endif //RENDERER_SHAPE_H

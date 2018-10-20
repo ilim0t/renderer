@@ -25,7 +25,7 @@ struct Image {
         data = new Vector3[size];
     }
     ~Image() {
-        delete[] data;
+//        delete data;
     }
 
     void set_pixel(int x, int y, const Vector3 v) {

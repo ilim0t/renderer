@@ -12,31 +12,27 @@
 #include "scene.h"
 #include "camera.h"
 
+
 int main() {
     Image img(256, 256);
-    std::vector<ShapeBase*> objects;
-    auto s1 = Sphere{Vector3(-.75, -.75, 0), 1.5, Vector3(), Vector3()};
-    objects.push_back(&s1);
-    auto s2 = Sphere{Vector3(.75, .75, 0), 1.5, Vector3(), Vector3()};
-    objects.push_back(&s2);
-//    Sphere(Vector3(2, 1, 1), 1, Vector3(), Vector3());
-//    objects.push_back(Sphere(Vector3(2, 1, 1), 1, Vector3(), Vector3()));
+    std::vector<ShapeBase*> shapes{
+            new Sphere(Vector3(1, 0, 0), 1, Vector3(0.9, 0.3, 0.3), Vector3()),
+            new Sphere(Vector3(-1, 0, 0), 1, Vector3(0.3, 0.9, 0.3), Vector3()),
+            new Sphere(Vector3(0, 9, 0), 5, Vector3(0), Vector3(1))
 
-    Scene scene{objects};
-    PinholeCamera camera(img, Vector3(), Vector3(0, 0, -4));
+    };
+    Scene scene(shapes, Vector3(0.3), 1);
+    PinholeCamera camera(img, Vector3(0), Vector3(0, 0, -4));
 
-//    #pragma omp parallel for schedule(dynamic, 1)
+    #pragma omp parallel for schedule(dynamic, 1)
     for(int x=0; x<img.width; ++x) {
         for(int y=0; y<img.height; ++y) {
-            Vector3 L;
+            Vector3 L(0);
             Ray ray = camera.get_ray(x, y);
-            auto hit = scene.intersect(ray);
-            if(hit) {
-                L = Vector3(hit->normal.abs());
-            } else {
-                L = Vector3(0.5, 0.7, 0.9);
+            for(int spp=0; spp<scene.spp; ++spp) {
+                L = L + scene.L(ray);
             }
-            img.set_pixel(x, y, L);
+            img.set_pixel(x, y, L/scene.spp);
         }
     }
     img.output_ppm("./result.ppm");

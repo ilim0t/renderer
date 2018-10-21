@@ -12,17 +12,22 @@
 #include "ray.h"
 
 struct ShapeBase {
+    Vector3 reflectance;
+    Vector3 illuminance;
+
+    ShapeBase(const Vector3& reflectance, const Vector3& illuminance): reflectance(reflectance), illuminance(illuminance) {}
     virtual std::optional<Hit> intersect(const Ray& ray) const = 0;
+    virtual Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const = 0;
 };
 
 struct Sphere : public ShapeBase {
     Vector3 position;
     double radius;
-    Vector3 reflectance;
-    Vector3 illuminance;
+//    Vector3 reflectance;
+//    Vector3 illuminance;
 
     Sphere(Vector3 position, double radius, Vector3 reflectance, Vector3 illuminance) :
-            position(position), radius(radius), reflectance(reflectance), illuminance(illuminance){}
+            ShapeBase(reflectance, illuminance), position(position), radius(radius){}
 
     std::optional<Hit> intersect(const Ray& ray) const {
             Vector3 position_origin = ray.origin - position;
@@ -47,6 +52,27 @@ struct Sphere : public ShapeBase {
             }
             return {};
     }
+
+    virtual Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const {
+        Vector3 v = in_direction.unit() - vector3::dot(normal.unit(), in_direction.unit()) * normal.unit() * 2;
+        return v;
+    };
+
 };
+
+//struct Triangle : public ShapeBase {
+//    Vector3 a;
+//    Vector3 b;
+//    Vector3 c;
+//
+//    std::optional<Hit> intersect(const Ray& ray) {
+//        vector3::dot(vector3::cross(a - ray.origin, b - ray.origin), ray.direction);
+//        return
+//    }
+//};
+//
+//struct Plane : public ShapeBase {
+//    Vector3
+//};
 
 #endif //RENDERER_SHAPE_H

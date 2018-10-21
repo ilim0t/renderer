@@ -8,6 +8,7 @@
 #include "ray.h"
 #include "vector.h"
 #include "image.h"
+#include "random.h"
 
 struct PinholeCamera {
     Image image;
@@ -25,7 +26,8 @@ struct PinholeCamera {
 
     Ray get_ray(int x, int y) {
         Ray ray;
-        ray.origin = position + rightward * (1 - 2. * x/image.width) + upward * (2. * y/image.height - 1);
+        ray.origin = position + rightward * (1 - 2. * (x + random_::rand()) / image.width) +
+                                upward * (2. * (y + random_::rand()) / image.height - 1);
         ray.direction = (position + direction - ray.origin).unit();
         ray.depth = 0;
         return ray;

@@ -18,13 +18,13 @@ int main() {
     std::vector<ShapeBase*> shapes{
             new Sphere(Vector3(1, 0, 0), 1, Vector3(0.9, 0.3, 0.3), Vector3(), new Diffuse()),
             new Sphere(Vector3(-1, 0, 0), 1, Vector3(0.3, 0.9, 0.3), Vector3(), new Mirror()),
-            new Sphere(Vector3(0, 9, 0), 5, Vector3(0), Vector3(1), new Diffuse())
+            new Sphere(Vector3(0, 9, 0), 5, Vector3(0), Vector3(0.4, 0.4, 1), new Diffuse())
 
     };
-    Scene scene(shapes, Vector3(0.3), 20);
+    Scene scene(shapes, Vector3(0.1), 100);
     PinholeCamera camera(img, Vector3(0), Vector3(0, 0, -4));
 
-//    #pragma omp parallel for schedule(dynamic, 1)
+    #pragma omp parallel for schedule(dynamic, 1)
     for(int x=0; x<img.width; ++x) {
         for(int y=0; y<img.height; ++y) {
             Vector3 L(0);

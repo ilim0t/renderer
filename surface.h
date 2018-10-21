@@ -13,7 +13,7 @@ struct SurfaceBase {
 };
 
 struct Diffuse : public SurfaceBase {
-    Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const {
+    Vector3 reflect(const Vector3&, const Vector3&, const Vector3& normal) const {
         auto [u,v] = vector3::tangent_space(normal);
         double r = random_::rand();
         double theta = random_::rand() * 2. * M_PI;
@@ -26,7 +26,7 @@ struct Diffuse : public SurfaceBase {
 };
 
 struct Mirror : public SurfaceBase {
-    Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const {
+    Vector3 reflect(const Vector3&, const Vector3& in_direction, const Vector3& normal) const {
         return in_direction.unit() - vector3::dot(normal.unit(), in_direction.unit()) * normal.unit() * 2;
     }
 

@@ -21,7 +21,6 @@ struct Scene {
 
     std::optional<Hit> intersect(const Ray& ray) const {
         std::optional<Hit> hit, min_hit;
-        double min_distance;
         for(const auto& shape : shapes) {
             std::optional<Hit> hit = shape->intersect(ray);
             if(!hit) {

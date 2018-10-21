@@ -10,12 +10,15 @@
 #include "vector.h"
 #include "hit.h"
 #include "ray.h"
+#include "surface.h"
 
 struct ShapeBase {
     Vector3 reflectance;
     Vector3 illuminance;
+    SurfaceBase* surface_ptr;
 
-    ShapeBase(const Vector3& reflectance, const Vector3& illuminance): reflectance(reflectance), illuminance(illuminance) {}
+    ShapeBase(const Vector3& reflectance, const Vector3& illuminance, SurfaceBase *surface_ptr) :
+    reflectance(reflectance), illuminance(illuminance), surface_ptr(surface_ptr) {}
     virtual std::optional<Hit> intersect(const Ray& ray) const = 0;
     virtual Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const = 0;
 };
@@ -26,8 +29,8 @@ struct Sphere : public ShapeBase {
 //    Vector3 reflectance;
 //    Vector3 illuminance;
 
-    Sphere(Vector3 position, double radius, Vector3 reflectance, Vector3 illuminance) :
-            ShapeBase(reflectance, illuminance), position(position), radius(radius){}
+    Sphere(Vector3 position, double radius, Vector3 reflectance, Vector3 illuminance, SurfaceBase *surface_ptr) :
+            ShapeBase(reflectance, illuminance, surface_ptr), position(position), radius(radius){}
 
     std::optional<Hit> intersect(const Ray& ray) const {
             Vector3 position_origin = ray.origin - position;
@@ -53,9 +56,8 @@ struct Sphere : public ShapeBase {
             return {};
     }
 
-    virtual Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const {
-        Vector3 v = in_direction.unit() - vector3::dot(normal.unit(), in_direction.unit()) * normal.unit() * 2;
-        return v;
+    Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const {
+        return surface_ptr->reflect(point, in_direction, normal);
     };
 
 };

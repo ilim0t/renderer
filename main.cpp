@@ -14,7 +14,7 @@
 
 
 int main() {
-    Image img(256, 256);
+    Image img(512, 512);
     std::vector<ShapeBase*> shapes{
             new Sphere(Vector3(1, 0, 0), 1, Vector3(0.9, 0.3, 0.3), Vector3(), new Diffuse()),
             new Sphere(Vector3(-1, 0, 0), 1, Vector3(0.3, 0.9, 0.3), Vector3(), new Mirror()),

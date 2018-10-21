@@ -41,7 +41,7 @@ struct Image {
 
 private:
     int coord2index(int x, int y) const {
-        return x + y*height;
+        return x + y*width;
     }
 };
 

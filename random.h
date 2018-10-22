@@ -6,6 +6,7 @@
 #define RENDERER_RANDOM_H
 
 #include <random>
+
 //std::random_device rnd;
 std::mt19937 mt;
 std::uniform_real_distribution<double> dist(0, 1);

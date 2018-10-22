@@ -6,6 +6,7 @@
 #define RENDERER_RAY_H
 
 #include "vector.h"
+
 struct Ray {
     Vector3 origin;
     Vector3 direction;

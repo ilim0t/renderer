@@ -38,6 +38,7 @@ struct Vector3 {
     Vector3 abs() const {
         return Vector3(std::abs(x), std::abs(y), std::abs(z));
     }
+
 };
 
 Vector3 operator+(const Vector3& a, const Vector3& b) {
@@ -59,6 +60,10 @@ Vector3 operator/(const Vector3& v, double k) {
 
 Vector3 operator*(const Vector3& a, const Vector3& b) {
     return Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
+bool operator==(const Vector3& a, const Vector3& b) {
+    return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
 std::ostream& operator<<(std::ostream& os, const Vector3& v) {

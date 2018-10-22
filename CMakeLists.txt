@@ -3,4 +3,4 @@ project(renderer)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp -Wall -Wextra -O3")
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(renderer main.cpp vector.h image.h shape.h hit.h ray.h scene.h camera.h random.h surface.h)
+add_executable(renderer main.cpp vector.h image.h shape.h hit.h ray.h scene.h camera.h random.h material.h)

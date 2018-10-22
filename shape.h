@@ -7,30 +7,29 @@
 
 
 #include <optional>
+#include <tuple>
 #include "vector.h"
 #include "hit.h"
 #include "ray.h"
-#include "surface.h"
+#include "material.h"
 
 struct ShapeBase {
-    Vector3 reflectance;
+//    Vector3 reflectance;
     Vector3 illuminance;
-    SurfaceBase* surface_ptr;
+    MaterialBase* material_ptr;
 
-    ShapeBase(const Vector3& reflectance, const Vector3& illuminance, SurfaceBase *surface_ptr) :
-    reflectance(reflectance), illuminance(illuminance), surface_ptr(surface_ptr) {}
+    ShapeBase(const Vector3& illuminance, MaterialBase *surface_ptr) :
+    illuminance(illuminance), material_ptr(surface_ptr) {}
     virtual std::optional<Hit> intersect(const Ray& ray) const = 0;
-    virtual Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const = 0;
+    virtual std::tuple<Ray, double> reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const = 0;
 };
 
 struct Sphere : public ShapeBase {
     Vector3 position;
     double radius;
-//    Vector3 reflectance;
-//    Vector3 illuminance;
 
-    Sphere(Vector3 position, double radius, Vector3 reflectance, Vector3 illuminance, SurfaceBase *surface_ptr) :
-            ShapeBase(reflectance, illuminance, surface_ptr), position(position), radius(radius){}
+    Sphere(const Vector3& position, double radius, const Vector3& illuminance, MaterialBase *material_ptr) :
+            ShapeBase(illuminance, material_ptr), position(position), radius(radius){}
 
     std::optional<Hit> intersect(const Ray& ray) const {
             Vector3 position_origin = ray.origin - position;
@@ -56,8 +55,8 @@ struct Sphere : public ShapeBase {
             return {};
     }
 
-    Vector3 reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const {
-        return surface_ptr->reflect(point, in_direction, normal);
+    std::tuple<Ray, double> reflect(const Vector3& point, const Vector3& in_direction, const Vector3& normal) const {
+        return material_ptr->reflect(point, in_direction, normal);
     };
 
 };

@@ -44,16 +44,15 @@ struct Scene {
 //                                std::max(vector3::dot(hit->normal.unit(), -ray.direction.unit()), 0.); // 仮
         Vector3 L_illuminance = hit->hit_shape_ptr->illuminance;
 
-        Vector3 f = hit->hit_shape_ptr->material_ptr->reflectance;
         auto[next_ray, pdf] = hit->hit_shape_ptr->reflect(hit->point, ray.direction, hit->normal);
         next_ray.depth = ray.depth + 1;
+        Vector3 f = hit->hit_shape_ptr->material_ptr->f(hit->point, ray.direction, next_ray.direction);
         double cos = std::max(vector3::dot(hit->normal, next_ray.direction), 0.);
 
         Vector3 next_L;
         if (f * cos == Vector3()) {
             next_L = Vector3(0);
         } else {
-
             next_L = random_::rand() < roulette_p ? L(next_ray, roulette_p) : Vector3();
         }
 

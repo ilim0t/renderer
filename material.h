@@ -16,10 +16,12 @@ struct MaterialBase {
 
     virtual std::tuple<Ray, double>
     reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const = 0;
+
+    virtual Vector3 f(const Vector3 &point, const Vector3 &in_direction, const Vector3 &out_direction) const = 0;
 };
 
 struct Diffuse : public MaterialBase {
-    Diffuse(const Vector3 &reflectance) : MaterialBase(reflectance / M_PI) {}
+    Diffuse(const Vector3 &reflectance) : MaterialBase(reflectance) {}
 
     std::tuple<Ray, double> reflect(const Vector3 &point, const Vector3 &, const Vector3 &normal) const {
         double theta = 0.5 * std::acos(1 - 2 * random_::rand());
@@ -37,6 +39,11 @@ struct Diffuse : public MaterialBase {
 
         return {ray, pdf};
     }
+
+    Vector3 f(const Vector3 &, const Vector3 &, const Vector3 &) const {
+        return reflectance / M_PI;
+    };
+
 };
 
 struct Mirror : public MaterialBase {
@@ -48,6 +55,11 @@ struct Mirror : public MaterialBase {
                 -1};
         return {ray, 1};
     }
+
+    Vector3 f(const Vector3 &, const Vector3 &, const Vector3 &) const {
+        return reflectance;
+    };
+
 
 };
 

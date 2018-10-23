@@ -37,26 +37,16 @@ struct Scene {
 
     Vector3 L(const Ray &ray, double roulette_p) {
         auto hit = intersect(ray);
-        if (!hit || ray.depth > lim_depth) {
-            return sky_color;
+        if (!hit || ray.depth >= lim_depth) {
+            return Vector3();
         }
-//        Vector3 L_illuminance = hit->hit_shape_ptr->illuminance *
-//                                std::max(vector3::dot(hit->normal.unit(), -ray.direction.unit()), 0.); // 仮
         Vector3 L_illuminance = hit->hit_shape_ptr->illuminance;
 
-        auto[next_ray, pdf] = hit->hit_shape_ptr->reflect(hit->point, ray.direction, hit->normal);
+        auto[next_ray, f] = hit->hit_shape_ptr->reflect(hit->point, ray.direction, hit->normal);
         next_ray.depth = ray.depth + 1;
-        Vector3 f = hit->hit_shape_ptr->material_ptr->f(hit->point, ray.direction, next_ray.direction);
-        double cos = std::max(vector3::dot(hit->normal, next_ray.direction), 0.);
 
-        Vector3 next_L;
-        if (f * cos == Vector3()) {
-            next_L = Vector3(0);
-        } else {
-            next_L = random_::rand() < roulette_p ? L(next_ray, roulette_p) : Vector3();
-        }
-
-        return L_illuminance + next_L * f * cos / roulette_p / pdf;
+        Vector3 next_L = random_::rand() < roulette_p && f != Vector3() ? L(next_ray, roulette_p) : Vector3();
+        return L_illuminance + next_L * f / roulette_p;
     }
 };
 

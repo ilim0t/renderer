@@ -23,7 +23,7 @@ struct ShapeBase {
 
     virtual std::optional<Hit> intersect(const Ray &ray) const = 0;
 
-    virtual std::tuple<Ray, double>
+    virtual std::tuple<Ray, Vector3>
     reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const = 0;
 };
 
@@ -58,7 +58,7 @@ struct Sphere : public ShapeBase {
         return {};
     }
 
-    std::tuple<Ray, double> reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const {
+    std::tuple<Ray, Vector3> reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const {
         return material_ptr->reflect(point, in_direction, normal);
     };
 

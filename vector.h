@@ -70,6 +70,9 @@ Vector3 operator*(const Vector3 &a, const Vector3 &b) {
 bool operator==(const Vector3 &a, const Vector3 &b) {
     return a.x == b.x && a.y == b.y && a.z == b.z;
 }
+bool operator!=(const Vector3 &a, const Vector3 &b) {
+    return !(a == b);
+}
 
 std::ostream &operator<<(std::ostream &os, const Vector3 &v) {
     os << int(v.x) << " " << int(v.y) << " " << int(v.z) << "\n";

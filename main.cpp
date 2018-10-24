@@ -42,32 +42,32 @@ struct Progress {
 };
 
 int main() {
-    Image img(256, 256);
+    Image img(512, 512);
 
     // コーネルボックス
-    std::vector<std::shared_ptr<ShapeBase>> shapes{
-        std::make_shared<Sphere>(Vector3(0, 10003.5, 0), 10000, Vector3(), Diffuse(Vector3(0.75))), // 上壁
-        std::make_shared<Sphere>(Vector3(10004, 0, 0), 10000, Vector3(), Diffuse(Vector3(0.25, 0.25, 0.75))) , //右壁
-        std::make_shared<Sphere>(Vector3(0, -10003.5, 0), 10000, Vector3(), Diffuse(Vector3(0.75))), // 下壁
-        std::make_shared<Sphere>(Vector3(-10004, 0, 0), 10000, Vector3(), Diffuse(Vector3(0.75, 0.25, 0.25))), // 左壁
-        std::make_shared<Sphere>(Vector3(0, 0, 10004), 10000, Vector3(0), Diffuse(Vector3(0.75))), // 奥壁
-        std::make_shared<Sphere>(Vector3(0, 23.48, 2), 20, Vector3(12), Diffuse(Vector3())), // ライト
-
-        std::make_shared<Sphere>(Vector3(-2, -2.3, 3), 1.2, Vector3(), Diffuse(Vector3(0.999))),
-        std::make_shared<Sphere>(Vector3(2, -2.3, 2), 1.2, Vector3(), Diffuse(Vector3(0.25, 0.75, 0.25))),
-};
+//    std::vector<std::shared_ptr<ShapeBase>> shapes{
+//        std::make_shared<Sphere>(Vector3(0, 10003.5, 0), 10000, Vector3(), Diffuse(Vector3(0.75))), // 上壁
+//        std::make_shared<Sphere>(Vector3(10004, 0, 0), 10000, Vector3(), Diffuse(Vector3(0.25, 0.25, 0.75))) , //右壁
+//        std::make_shared<Sphere>(Vector3(0, -10003.5, 0), 10000, Vector3(), Diffuse(Vector3(0.75))), // 下壁
+//        std::make_shared<Sphere>(Vector3(-10004, 0, 0), 10000, Vector3(), Diffuse(Vector3(0.75, 0.25, 0.25))), // 左壁
+//        std::make_shared<Sphere>(Vector3(0, 0, 10004), 10000, Vector3(0), Diffuse(Vector3(0.75))), // 奥壁
+//        std::make_shared<Sphere>(Vector3(0, 23.48, 2), 20, Vector3(12), Diffuse(Vector3())), // ライト
+//
+//        std::make_shared<Sphere>(Vector3(-2, -2.3, 3), 1.2, Vector3(), Diffuse(Vector3(0.999))),
+//        std::make_shared<Sphere>(Vector3(2, -2.3, 2), 1.2, Vector3(), Diffuse(Vector3(0.25, 0.75, 0.25))),
+//};
 
     // 球
-//    std::vector<std::shared_ptr<ShapeBase>> shapes{
-//        std::make_shared<Sphere>(Vector3(0, -10004, 0), 10000, Vector3(), Diffuse(Vector3(0.75))),
-//        std::make_shared<Sphere>(Vector3(-2, -2.8, 3), 1.2, Vector3(), Diffuse(Vector3(0.999))),
-//        std::make_shared<Sphere>(Vector3(2, -2.8, 2), 1.2, Vector3(), Diffuse(Vector3(0.25, 0.75, 0.25))),
-//        std::make_shared<Sphere>(Vector3(0, -3, 5), 1, Vector3(), Fuzz(Vector3(0.75), 0.2 * M_PI)),
-//    };
+    std::vector<std::shared_ptr<ShapeBase>> shapes{
+        std::make_shared<Sphere>(Vector3(0, -10004, 0), 10000, Vector3(), Diffuse(Vector3(0.75))),
+        std::make_shared<Sphere>(Vector3(-2, -2.8, 3), 1.2, Vector3(), Diffuse(Vector3(0.999))),
+        std::make_shared<Sphere>(Vector3(2, -2.8, 2), 1.2, Vector3(), Diffuse(Vector3(0.25, 0.75, 0.25))),
+        std::make_shared<Sphere>(Vector3(0, -3, 6), 1, Vector3(), Fuzz(Vector3(0.75), 0.2 * M_PI)),
+        std::make_shared<ParallelLight>(Vector3(1, 2, 1), M_PI * 30/180, Vector3(2), Diffuse(Vector3(0))) //太陽の半頂角
+    };
 
-    Scene scene(shapes, Vector3(0.8), 256, 100);
-    std::shared_ptr<CameraBase> camera = std::make_shared<NormalCamera>(img, Vector3(0, 0, -6), Vector3(0), M_PI / 3);
-//    std::shared_ptr<CameraBase> camera = std::make_shared<PinholeCamera>(img, Vector3(0, 0, -4), Vector3(), 1);
+    Scene scene(shapes, Vector3(0.5, 0.6, 0.9), 1024, 100);
+    std::shared_ptr<CameraBase> camera = std::make_shared<NormalCamera>(img, Vector3(0, 0, -6), Vector3(0), M_PI*3/8);
     Progress progress(img.size);
 
 #pragma omp parallel for schedule(auto)
@@ -79,7 +79,6 @@ int main() {
             }
 #else
             progress.show();
-
 #endif
             Vector3 L(0);
             for (int spp = 0; spp < scene.spp; ++spp) {

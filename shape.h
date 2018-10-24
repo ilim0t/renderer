@@ -9,6 +9,7 @@
 #include <optional>
 #include <tuple>
 #include <memory>
+#include <float.h>
 #include "vector.h"
 #include "hit.h"
 #include "ray.h"
@@ -32,7 +33,7 @@ struct Sphere : public ShapeBase {
     Vector3 position;
     double radius;
 
-    template <class T>
+    template<class T>
     Sphere(const Vector3 &position, double radius, const Vector3 &illuminance, T material_ptr) :
             ShapeBase(illuminance, std::make_shared<T>(material_ptr)), position(position), radius(radius) {}
 
@@ -64,6 +65,31 @@ struct Sphere : public ShapeBase {
         return material_ptr->reflect(point, in_direction, normal);
     };
 
+};
+
+// 物理ベースではない
+struct ParallelLight : ShapeBase {
+    Vector3 direction;
+    double half_vertex_angle;
+
+    template<class T>
+    ParallelLight(const Vector3 &direction, double half_vertex_angle, const Vector3 &illuminance, T material_ptr) :
+            ShapeBase(illuminance / 2 / M_PI / (1 - std::cos(half_vertex_angle)), std::make_shared<T>(material_ptr)),
+            direction(direction), half_vertex_angle(half_vertex_angle) {}
+
+    std::optional<Hit> intersect(const Ray &ray) const {
+        if (ray.depth == 0) {
+            return {};
+        }
+        if (std::cos(half_vertex_angle) <= vector3::dot(ray.direction.unit(), direction.unit())) {
+            return Hit(Vector3(), direction, DBL_MAX, this);
+        }
+        return {};
+    };
+
+    std::tuple<Ray, Vector3> reflect(const Vector3 &, const Vector3 &, const Vector3 &) const {
+        return {Ray(), Vector3()};
+    };
 };
 
 //struct Triangle : public ShapeBase {

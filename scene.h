@@ -41,12 +41,10 @@ struct Scene {
         if (!hit || ray.depth >= lim_depth) {
             return sky_color;
         }
-        Vector3 L_illuminance = hit->hit_shape_ptr->illuminance;
-
-        auto[next_ray, f] = hit->hit_shape_ptr->reflect(hit->point, ray.direction, hit->normal);
+        auto[next_ray, f, L_illuminance] = hit->hit_shape_ptr->reflect(hit->point, ray.direction, hit->normal);
         next_ray.depth = ray.depth + 1;
 
-        Vector3 next_L = random_::rand() < roulette_p && f != Vector3() ? L(next_ray, roulette_p) : Vector3();
+        Vector3 next_L = random_::rand() > roulette_p || f == Vector3(0) ? Vector3(0) : L(next_ray, roulette_p);
         return L_illuminance + next_L * f / roulette_p;
     }
 };

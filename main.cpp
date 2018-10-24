@@ -17,23 +17,35 @@
 #include "camera.h"
 
 struct Progress {
-    int num;
+    int num = 0;
     int total;
     std::chrono::system_clock::time_point start;
     double delta_t = 0;
+    double previous_elapsed_time = 0;
+    int count = 0;
+    int unit;
 
-    Progress(int total) : num(0), total(total) , start(std::chrono::system_clock::now()){}
+    Progress(int total) : total(total), start(std::chrono::system_clock::now()), previous_elapsed_time(elapsed()),
+                          unit(total / 400) {}
 
     void show() {
-        double percent = (double)num / total * 100;
-        delta_t += 1. / std::max(elapsed(), 1.) * (elapsed() / std::max(num, 1) - delta_t);
+        double elapsed_time = elapsed();
+        double percent = (double) num / total * 100;
+
+        double recently_delta_t = num ? (elapsed_time - previous_elapsed_time) / (num - unit * count) : 0;
+        if (num >= unit * (count + 1)) {
+            count = num / unit;
+            previous_elapsed_time = elapsed_time;
+        }
+        delta_t += 0.005 / std::max(elapsed_time, 1.) * (recently_delta_t - delta_t);
         double remain = delta_t * (total - num);
         std::cout << "\r" << std::fixed << std::setprecision(2) <<
-        percent << "%\tremain: " << (int)remain << "[s]" << std::flush;
+                  percent << "%\tremain: " << (int) remain << "[s]\ttotal: " << elapsed_time << "[s]" << std::flush;
     }
 
     double elapsed() {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count() / 1000.;
+        return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count() /
+               1000.;
     }
 
     void end() {
@@ -42,20 +54,21 @@ struct Progress {
 };
 
 int main() {
-    Image img(512, 512);
+    Image img(256, 256);
 
-    // コーネルボックス
+     // コーネルボックス
 //    std::vector<std::shared_ptr<ShapeBase>> shapes{
-//        std::make_shared<Sphere>(Vector3(0, 10003.5, 0), 10000, Vector3(), Diffuse(Vector3(0.75))), // 上壁
-//        std::make_shared<Sphere>(Vector3(10004, 0, 0), 10000, Vector3(), Diffuse(Vector3(0.25, 0.25, 0.75))) , //右壁
-//        std::make_shared<Sphere>(Vector3(0, -10003.5, 0), 10000, Vector3(), Diffuse(Vector3(0.75))), // 下壁
-//        std::make_shared<Sphere>(Vector3(-10004, 0, 0), 10000, Vector3(), Diffuse(Vector3(0.75, 0.25, 0.25))), // 左壁
-//        std::make_shared<Sphere>(Vector3(0, 0, 10004), 10000, Vector3(0), Diffuse(Vector3(0.75))), // 奥壁
-//        std::make_shared<Sphere>(Vector3(0, 23.48, 2), 20, Vector3(12), Diffuse(Vector3())), // ライト
+//            std::make_shared<Sphere>(Vector3(0, 10003.5, 0), 10000, Vector3(), Diffuse(Vector3(0.75))), // 上壁
+//            std::make_shared<Sphere>(Vector3(10004, 0, 0), 10000, Vector3(), Diffuse(Vector3(0.25, 0.25, 0.75))), //右壁
+//            std::make_shared<Sphere>(Vector3(0, -10003.5, 0), 10000, Vector3(), Diffuse(Vector3(0.75))), // 下壁
+//            std::make_shared<Sphere>(Vector3(-10004, 0, 0), 10000, Vector3(), Diffuse(Vector3(0.75, 0.25, 0.25))), // 左壁
+//            std::make_shared<Sphere>(Vector3(0, 0, 10004), 10000, Vector3(0), Diffuse(Vector3(0.75))), // 奥壁
+//            std::make_shared<Sphere>(Vector3(0, 23.48, 2), 20, Vector3(12), Diffuse(Vector3())), // ライト
 //
-//        std::make_shared<Sphere>(Vector3(-2, -2.3, 3), 1.2, Vector3(), Diffuse(Vector3(0.999))),
-//        std::make_shared<Sphere>(Vector3(2, -2.3, 2), 1.2, Vector3(), Diffuse(Vector3(0.25, 0.75, 0.25))),
-//};
+//            std::make_shared<Sphere>(Vector3(-2, -2.3, 3), 1.2, Vector3(), Diffuse(Vector3(0.999))),
+//            std::make_shared<Sphere>(Vector3(2, -2.3, 2), 1.2, Vector3(), Diffuse(Vector3(0.25, 0.75, 0.25))),
+//            std::make_shared<ParallelLight>(Vector3(0, 0, -1), M_PI * 15/180, Vector3(1), Diffuse(Vector3(0))),
+//    };
 
     // 球
     std::vector<std::shared_ptr<ShapeBase>> shapes{
@@ -63,14 +76,15 @@ int main() {
         std::make_shared<Sphere>(Vector3(-2, -2.8, 3), 1.2, Vector3(), Diffuse(Vector3(0.999))),
         std::make_shared<Sphere>(Vector3(2, -2.8, 2), 1.2, Vector3(), Diffuse(Vector3(0.25, 0.75, 0.25))),
         std::make_shared<Sphere>(Vector3(0, -3, 6), 1, Vector3(), Fuzz(Vector3(0.75), 0.2 * M_PI)),
-        std::make_shared<ParallelLight>(Vector3(1, 2, 1), M_PI * 30/180, Vector3(2), Diffuse(Vector3(0))) //太陽の半頂角
+        std::make_shared<ParallelLight>(Vector3(1, 2, 1), M_PI * 15/180, Vector3(1), Diffuse(Vector3(0))),
     };
 
-    Scene scene(shapes, Vector3(0.5, 0.6, 0.9), 1024, 100);
-    std::shared_ptr<CameraBase> camera = std::make_shared<NormalCamera>(img, Vector3(0, 0, -6), Vector3(0), M_PI*3/8);
+    Scene scene(shapes, Vector3(0.15, 0.2, 0.35), 4*1000, 1e5);
+    std::shared_ptr<CameraBase> camera = std::make_shared<NormalCamera>(
+            img, Vector3(0, 0, -6), Vector3(0), M_PI * 3 / 8);
     Progress progress(img.size);
 
-#pragma omp parallel for schedule(auto)
+#pragma omp parallel for schedule(dynamic, 1)
     for (int x = 0; x < img.width; ++x) {
         for (int y = 0; y < img.height; ++y) {
 #ifdef NDEBUG
@@ -89,7 +103,6 @@ int main() {
             img.set_pixel(x, y, L / scene.spp);
         }
     }
-
     img.output_ppm("./result.ppm");
     progress.end();
     return 0;

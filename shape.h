@@ -25,7 +25,7 @@ struct ShapeBase {
 
     virtual std::optional<Hit> intersect(const Ray &ray) const = 0;
 
-    virtual std::tuple<Ray, Vector3>
+    virtual std::tuple<Ray, Vector3, Vector3>
     reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const = 0;
 };
 
@@ -61,8 +61,9 @@ struct Sphere : public ShapeBase {
         return {};
     }
 
-    std::tuple<Ray, Vector3> reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const {
-        return material_ptr->reflect(point, in_direction, normal);
+    std::tuple<Ray, Vector3, Vector3> reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const {
+        auto [next_ray, f] = material_ptr->reflect(point, in_direction, normal);
+        return {next_ray, f, illuminance};
     };
 
 };
@@ -74,7 +75,7 @@ struct ParallelLight : ShapeBase {
 
     template<class T>
     ParallelLight(const Vector3 &direction, double half_vertex_angle, const Vector3 &illuminance, T material_ptr) :
-            ShapeBase(illuminance / 2 / M_PI / (1 - std::cos(half_vertex_angle)), std::make_shared<T>(material_ptr)),
+            ShapeBase(illuminance, std::make_shared<T>(material_ptr)),
             direction(direction), half_vertex_angle(half_vertex_angle) {}
 
     std::optional<Hit> intersect(const Ray &ray) const {
@@ -87,8 +88,8 @@ struct ParallelLight : ShapeBase {
         return {};
     };
 
-    std::tuple<Ray, Vector3> reflect(const Vector3 &, const Vector3 &, const Vector3 &) const {
-        return {Ray(), Vector3()};
+    std::tuple<Ray, Vector3, Vector3> reflect(const Vector3 &, const Vector3 &, const Vector3 &) const {
+        return {Ray(), Vector3(), illuminance / 2 / M_PI / (1 - std::cos(half_vertex_angle))};
     };
 };
 

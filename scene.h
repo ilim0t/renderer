@@ -7,18 +7,19 @@
 
 #include <optional>
 #include <vector>
+#include <memory>
 #include "hit.h"
 #include "ray.h"
 #include "shape.h"
 
 
 struct Scene {
-    std::vector<ShapeBase *> shapes;
+    std::vector<std::shared_ptr<ShapeBase>> shapes;
     Vector3 sky_color;
     int spp;
     int lim_depth;
 
-    Scene(const std::vector<ShapeBase *> shapes, const Vector3 &sky_color, int spp, int(lim_depth)) :
+    Scene(const std::vector<std::shared_ptr<ShapeBase>> shapes, const Vector3 &sky_color, int spp, int(lim_depth)) :
             shapes(shapes), sky_color(sky_color), spp(spp), lim_depth(lim_depth) {}
 
     std::optional<Hit> intersect(const Ray &ray) const {
@@ -38,7 +39,7 @@ struct Scene {
     Vector3 L(const Ray &ray, double roulette_p) {
         auto hit = intersect(ray);
         if (!hit || ray.depth >= lim_depth) {
-            return Vector3();
+            return sky_color;
         }
         Vector3 L_illuminance = hit->hit_shape_ptr->illuminance;
 

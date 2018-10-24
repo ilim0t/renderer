@@ -46,7 +46,9 @@ struct Mirror : public MaterialBase {
     reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const {
         Ray next_ray{point + normal * 0.001,
                      in_direction.unit() - vector3::dot(normal.unit(), in_direction.unit()) * normal.unit() * 2, -1};
-        return {next_ray, reflectance};
+        double cos = std::max(vector3::dot(normal.unit(), next_ray.direction.unit()), 0.);
+
+        return {next_ray, reflectance * cos};
     }
 };
 
@@ -72,5 +74,30 @@ struct Mirror : public MaterialBase {
 //        return {ray, pdf, reflectance ...};
 //    };
 //};
+
+// 物理ベースではない
+struct Fuzz : public MaterialBase {
+    double half_vertex_angle;
+
+    Fuzz(const Vector3 &reflectance, double half_vertex_angle) : MaterialBase(reflectance),
+                                                                 half_vertex_angle(half_vertex_angle) {}
+
+    std::tuple<Ray, Vector3> reflect(const Vector3 &point, const Vector3 &in_direction, const Vector3 &normal) const {
+
+        double theta = half_vertex_angle * random_::rand();
+        double phi = random_::rand() * 2 * M_PI;
+
+        double x = std::cos(phi) * std::sin(theta);
+        double y = std::sin(phi) * std::sin(theta);
+
+        auto const&[u, v] = vector3::tangent_space(normal);
+
+        Ray next_ray{point + normal * 0.001,
+                     in_direction.unit() - vector3::dot(normal.unit(), in_direction.unit()) * normal.unit() * 2 +
+                     u * x + y * v, -1};
+//        double cos = std::max(vector3::dot(normal.unit(), next_ray.direction.unit()), 0.);
+        return {next_ray, reflectance};
+    }
+};
 
 #endif //RENDERER_MATERIAL_H

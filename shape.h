@@ -8,6 +8,7 @@
 
 #include <optional>
 #include <tuple>
+#include <memory>
 #include "vector.h"
 #include "hit.h"
 #include "ray.h"
@@ -16,10 +17,10 @@
 struct ShapeBase {
 //    Vector3 reflectance;
     Vector3 illuminance;
-    MaterialBase *material_ptr;
+    std::shared_ptr<MaterialBase> material_ptr;
 
-    ShapeBase(const Vector3 &illuminance, MaterialBase *surface_ptr) :
-            illuminance(illuminance), material_ptr(surface_ptr) {}
+    ShapeBase(const Vector3 &illuminance, std::shared_ptr<MaterialBase> material_ptr) :
+            illuminance(illuminance), material_ptr(material_ptr) {}
 
     virtual std::optional<Hit> intersect(const Ray &ray) const = 0;
 
@@ -31,8 +32,9 @@ struct Sphere : public ShapeBase {
     Vector3 position;
     double radius;
 
-    Sphere(const Vector3 &position, double radius, const Vector3 &illuminance, MaterialBase *material_ptr) :
-            ShapeBase(illuminance, material_ptr), position(position), radius(radius) {}
+    template <class T>
+    Sphere(const Vector3 &position, double radius, const Vector3 &illuminance, T material_ptr) :
+            ShapeBase(illuminance, std::make_shared<T>(material_ptr)), position(position), radius(radius) {}
 
     std::optional<Hit> intersect(const Ray &ray) const {
         Vector3 position_origin = ray.origin - position;

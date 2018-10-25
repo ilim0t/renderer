@@ -95,7 +95,7 @@ struct Glass : public MaterialBase {
 
         if (random_::rand() < ref_p) {
             Ray next_ray{point + normal * MIN_DIFF,
-                         in_direction.unit() - vector3::dot(normal.unit(), in_direction.unit()) * normal.unit() * 2,
+                         in_direction.unit() - vector3::dot(direction_normal.unit(), in_direction.unit()) * direction_normal.unit() * 2,
                          -1};
             return {next_ray, reflectance};
         }
@@ -108,7 +108,7 @@ struct Glass : public MaterialBase {
         double to_sin = to_horizontal.length();
         if (to_sin >= 1) {
             Ray next_ray{point - direction_normal * MIN_DIFF,
-                         in_direction.unit() - vector3::dot(normal.unit(), in_direction.unit()) * normal.unit() * 2,
+                         in_direction.unit() - vector3::dot(direction_normal.unit(), in_direction.unit()) * direction_normal.unit() * 2,
                          -1};
             return {next_ray, reflectance};
         }

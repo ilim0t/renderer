@@ -9,6 +9,7 @@
 #include <chrono>
 #include <omp.h>
 #include <iomanip>
+#include <limits.h>
 
 #include "vector.h"
 #include "image.h"
@@ -72,27 +73,30 @@ int main() {
 
     // 球
     std::vector<std::shared_ptr<ShapeBase>> shapes{
+        // 床
         std::make_shared<Sphere>(Vector3(0, -10004, 0), 10000, Vector3(), Diffuse(Vector3(0.75))),
-
+        // ピラミッド
         std::make_shared<Sphere>(Vector3(0.8, -3.2, 2+0.8*std::sqrt(3)), 0.8, Vector3(), Glass(Vector3(0.9), 1.51, 1)),
         std::make_shared<Sphere>(Vector3(-0.8, -3.2, 2+0.8*std::sqrt(3)), 0.8, Vector3(), Glass(Vector3(0.9), 1.51, 1)),
         std::make_shared<Sphere>(Vector3(0, -3.2, 2), 0.8, Vector3(), Glass(Vector3(0.9), 1.51, 1)),
-        std::make_shared<Sphere>(Vector3(0, -3.2+2./3*std::sqrt(6)*0.8, 2+0.8/std::sqrt(3)), 0.8, Vector3(), Fuzz(Vector3(0.9), M_PI/12)),
-
+        std::make_shared<Sphere>(Vector3(0, -3.2 + 2. / 3. * std::sqrt(6) * 0.8, 2+2*std::sqrt(3) * 0.8 / 3), 0.8,
+                Vector3(), Fuzz(Vector3(0.9), M_PI/12)),
+        // 奥 球
         std::make_shared<Sphere>(Vector3(-2, -2.5, 5), 1.5, Vector3(), Diffuse(Vector3(0.25, 0.75, 0.25))),
         std::make_shared<Sphere>(Vector3(2, -2.5, 5), 1.5, Vector3(), Diffuse(Vector3(0.75, 0.25, 0.25))),
-
+        // 手前 球
         std::make_shared<Sphere>(Vector3(2, -3.2, 0), 0.8, Vector3(), Diffuse(Vector3(0.75))),
         std::make_shared<Sphere>(Vector3(-2, -3.2, 0), 0.8, Vector3(), Diffuse(Vector3(0.75))),
-
-        std::make_shared<Sphere>(Vector3(0, -3.4, -0.5), 0.6, Vector3(), Mirror(Vector3(0.9))),
-
-        std::make_shared<ParallelLight>(Vector3(1, 2, 2), M_PI * 15/180, Vector3(3), Diffuse(Vector3(0))),
+        std::make_shared<Sphere>(Vector3(0, -3.4, -1), 0.6, Vector3(), Diffuse(Vector3(0.25, 0.25, 0.75))),
+        // 上空 鏡
+        std::make_shared<Sphere>(Vector3(0, -1.25, 8.5), 2, Vector3(), Mirror(Vector3(0.9))),
+        // ライト
+        std::make_shared<ParallelLight>(Vector3(1, 2, 2), M_PI * 7.5/180, Vector3(2), Diffuse(Vector3(0))),
     };
 
-    Scene scene(shapes, Vector3(0.15, 0.2, 0.35), 4*4000, 1e5);
+    Scene scene(shapes, Vector3(0.15, 0.2, 0.35), 4*4000, INT_MAX);
     std::shared_ptr<CameraBase> camera = std::make_shared<NormalCamera>(
-            img, Vector3(0, 0, -6), Vector3(0, -1, -1), M_PI * 3 / 8);
+            img, Vector3(0, 1, -6), Vector3(0, -1, -1), M_PI * 1 / 3);
     Progress progress(img.size);
 
 #pragma omp parallel for schedule(dynamic, 1)

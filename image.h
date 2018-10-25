@@ -22,7 +22,7 @@ struct Image {
     Vector3 *data;
 
     Image(int width, int height) : width(width), height(height), size(width * height) {
-        data = new Vector3[size];
+        data = new Vector3[size]();
     }
 
     ~Image() {
@@ -62,6 +62,7 @@ namespace image {
         for (int i = 0; i < image.size; ++i) {
             ofs << tonemap(image.data[i]);
         }
+        ofs.close();
     }
 }
 
